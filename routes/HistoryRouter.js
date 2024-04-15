@@ -45,4 +45,20 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  try {
+    const { clothes } = req.body;
+    const { id } = req.params;
+    const history = await History.findById(id);
+    history.clothes = clothes;
+    const data = await history.save();
+    data.clothes = await Promise.all(
+      data.clothes.map((c) => Fashion.findById(c))
+    );
+    res.json(data);
+  } catch (error) {
+    res.status(500).json("Error");
+  }
+});
+
 module.exports = router;
