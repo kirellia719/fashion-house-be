@@ -36,6 +36,7 @@ router.post("/", async (req, res) => {
     if (history) {
       res.status(401).json("Đã tồn tại");
     } else {
+      console.log(date);
       await History.create({ date, clothes });
       const histories = await getAllHistories();
       res.json(histories);

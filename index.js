@@ -16,9 +16,11 @@ app.use(morgan("short"));
 const UploadRouter = require("./routes/UploadRouter");
 const FashionRouter = require("./routes/FashionRouter");
 const HistoryRouter = require("./routes/HistoryRouter");
+const StatisticRouter = require("./routes/StatisticRouter");
 app.use("/upload", UploadRouter);
 app.use("/fashion", FashionRouter);
 app.use("/history", HistoryRouter);
+app.use("/statistic", StatisticRouter);
 
 mongoose
   .connect(process.env.MONGO_URL)
