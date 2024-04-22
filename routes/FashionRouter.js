@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const cloudinary = require("cloudinary").v2;
-const uploadCloud = require("../cloudinary.config");
+const { upload, uploadMiddleWare } = require("../cloudinary.config");
 const Fashion = require("../models/FashionModel");
 
 router.get("/", async (req, res) => {
@@ -12,13 +12,13 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", uploadCloud.single("image"), async (req, res) => {
+router.post("/", upload.single("image"), uploadMiddleWare, async (req, res) => {
   try {
     const data = {
       ...req.body,
-      image: req.file?.path || "",
+      image: req.file?.url || "",
       owner: "abc",
-      publicId: req.file?.filename,
+      publicId: req.file?.public_id,
     };
     const newFashion = await Fashion.create(data);
     res.json(newFashion);
@@ -38,23 +38,29 @@ router.put("/like/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", uploadCloud.single("image"), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const fashion = await Fashion.findById(id);
-    for (let key in req.body) {
-      fashion[key] = req.body[key];
+router.put(
+  "/:id",
+  upload.single("image"),
+  uploadMiddleWare,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const fashion = await Fashion.findById(id);
+      for (let key in req.body) {
+        fashion[key] = req.body[key];
+      }
+      if (req.file) {
+        fashion.publicId &&
+          (await cloudinary.uploader.destroy(fashion.publicId));
+        fashion.image = req.file.url;
+        fashion.publicId = req.file.public_id;
+      }
+      res.json(await fashion.save());
+    } catch (error) {
+      res.json("Error");
     }
-    if (req.file) {
-      fashion.publicId && (await cloudinary.uploader.destroy(fashion.publicId));
-      fashion.image = req.file.path;
-      fashion.publicId = req.file.filename;
-    }
-    res.json(await fashion.save());
-  } catch (error) {
-    res.json("Error");
   }
-});
+);
 
 router.delete("/:id", async (req, res) => {
   try {
