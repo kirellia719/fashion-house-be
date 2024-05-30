@@ -4,8 +4,8 @@ const History = require("../models/HistoryModel");
 
 const getAllHistories = async () => {
   try {
-    const histories = await History.find().sort({ date: "desc" });
-    const newHistories = await Promise.all(
+    let histories = await History.find().sort({ date: "desc" });
+    histories = await Promise.all(
       histories.map(async (h) => {
         const clothes = await Promise.all(
           h.clothes.map((c) => Fashion.findById(c))
@@ -13,7 +13,8 @@ const getAllHistories = async () => {
         return { ...h._doc, clothes };
       })
     );
-    return newHistories;
+    histories.filter((h) => h);
+    return histories;
   } catch (error) {
     return [];
   }
@@ -58,6 +59,17 @@ router.put("/:id", async (req, res) => {
     );
     res.json(data);
   } catch (error) {
+    res.status(500).json("Error");
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const history = await History.findById(id);
+    res.json(await history.deleteOne());
+  } catch (error) {
+    console.log(error);
     res.status(500).json("Error");
   }
 });

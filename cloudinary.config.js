@@ -34,4 +34,13 @@ const uploadMiddleWare = async (req, res, next) => {
   }
 };
 
-module.exports = { upload, uploadMiddleWare };
+const uploadCloud = (req, res, next) => {
+  upload.single("image")(req, res, (err) => {
+    if (err) {
+      return next(err);
+    }
+    uploadMiddleWare(req, res, next);
+  });
+};
+
+module.exports = { uploadCloud };

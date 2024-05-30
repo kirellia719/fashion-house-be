@@ -1,7 +1,7 @@
 const router = require("express").Router();
-const { upload, uploadMiddleWare } = require("../cloudinary.config");
+const { uploadCloud } = require("../cloudinary.config");
 
-router.post("/", upload.single("file"), uploadMiddleWare, async (req, res) => {
+router.post("/", uploadCloud, async (req, res) => {
   console.log(req.file);
   res.json(req.file);
 });

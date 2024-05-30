@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const cloudinary = require("cloudinary").v2;
-const { upload, uploadMiddleWare } = require("../cloudinary.config");
+const { uploadCloud } = require("../cloudinary.config");
 const Fashion = require("../models/FashionModel");
 
 router.get("/", async (req, res) => {
@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", upload.single("image"), uploadMiddleWare, async (req, res) => {
+router.post("/", uploadCloud, async (req, res) => {
   try {
     const data = {
       ...req.body,
@@ -38,29 +38,23 @@ router.put("/like/:id", async (req, res) => {
   }
 });
 
-router.put(
-  "/:id",
-  upload.single("image"),
-  uploadMiddleWare,
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-      const fashion = await Fashion.findById(id);
-      for (let key in req.body) {
-        fashion[key] = req.body[key];
-      }
-      if (req.file) {
-        fashion.publicId &&
-          (await cloudinary.uploader.destroy(fashion.publicId));
-        fashion.image = req.file.url;
-        fashion.publicId = req.file.public_id;
-      }
-      res.json(await fashion.save());
-    } catch (error) {
-      res.json("Error");
+router.put("/:id", uploadCloud, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const fashion = await Fashion.findById(id);
+    for (let key in req.body) {
+      fashion[key] = req.body[key];
     }
+    if (req.file) {
+      fashion.publicId && (await cloudinary.uploader.destroy(fashion.publicId));
+      fashion.image = req.file.url;
+      fashion.publicId = req.file.public_id;
+    }
+    res.json(await fashion.save());
+  } catch (error) {
+    res.json("Error");
   }
-);
+});
 
 router.delete("/:id", async (req, res) => {
   try {
