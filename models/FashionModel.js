@@ -7,6 +7,7 @@ const FashionSchema = new mongoose.Schema(
     color: String,
     image: String,
     date: String,
+    size: String,
     price: {
       type: String,
       default: 0,

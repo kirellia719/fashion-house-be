@@ -45,6 +45,7 @@ router.put("/:id", uploadCloud, async (req, res) => {
     for (let key in req.body) {
       fashion[key] = req.body[key];
     }
+    console.log(fashion);
     if (req.file) {
       fashion.publicId && (await cloudinary.uploader.destroy(fashion.publicId));
       fashion.image = req.file.url;
@@ -52,7 +53,7 @@ router.put("/:id", uploadCloud, async (req, res) => {
     }
     res.json(await fashion.save());
   } catch (error) {
-    res.json("Error");
+    res.status(500).json("Error");
   }
 });
 
